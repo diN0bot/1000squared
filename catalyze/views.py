@@ -67,7 +67,11 @@ def callback(request):
     twitter_oauth_token_secret = request.session.get('twitter_oauth_token_secret', None)
     twitter = Twython(APP_KEY, APP_SECRET, twitter_oauth_token, twitter_oauth_token_secret)
 
-    final_step = twitter.get_authorized_tokens(oauth_verifier)
+    try:
+        final_step = twitter.get_authorized_tokens(oauth_verifier)
+    except:
+        request.session['twitter_oauth_final'] = False
+        return redirect('catalyze.index')
 
     request.session['twitter_oauth_token'] = final_step['oauth_token']
     request.session['twitter_oauth_token_secret'] = final_step['oauth_token_secret']
