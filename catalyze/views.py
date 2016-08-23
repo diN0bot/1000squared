@@ -52,7 +52,7 @@ def index(request):
 
     else:
         twitter = Twython(APP_KEY, APP_SECRET)
-        auth = twitter.get_authentication_tokens(callback_url='http://staycalmcomic.com/catalyze/callback/')
+        auth = twitter.get_authentication_tokens(callback_url='http://lusrc.com/callback/')
         request.session['twitter_oauth_final'] = False
         request.session['twitter_oauth_token'] = auth['oauth_token']
         request.session['twitter_oauth_token_secret'] = auth['oauth_token_secret']
