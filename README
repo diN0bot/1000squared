@@ -1,1 +1,21 @@
-hello world 2
+# AFTER CLONE
+cp git-hooks/pre-push .git/hooks/pre-push
+
+# BEFORE PUSHING LIVE
+./manage.py dumpdata -o comic_data_dump.json --format=json --indent=4
+
+# now covered by pre-push hook
+echo "yes" | ./manage.py collectstatic
+
+# AFTER A PULL
+pip install -r requirements.txt # add this to post-receive?
+./manage.py migrate
+
+have a look at hooks/post-receive for what happens on production automatically after each deploy
+for sudo use sudo visudo on production to not require password for that command
+
+
+## PRODUCTION DEPLOY NOTES
+www-data:www-data must own directory and db.sqlite3 so that sessions can be written to database
+...but lus must be owner for git post-receive to work
+...so db.sqlite3 is writable by any user on server

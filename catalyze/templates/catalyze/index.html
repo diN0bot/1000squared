@@ -1,0 +1,52 @@
+{% load staticfiles %}
+
+
+<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.0//EN" "http://www.wapforum.org/DTD/xhtml-mobile10.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Catalyzers for Change</title>
+
+    <link rel="stylesheet" type="text/css" href="{% static "css/catalyze.css" %}">
+
+    <link rel="shortcut icon" type="image/png" href="{% static "img/favicon.png" %}">
+    <link rel="apple-itouch-icon" href="{% static "img/favicon.png" %}">
+    <link rel="apple-touch-icon" href="{% static "img/favicon.png" %}">
+    <link rel="apple-touch-icon" sizes="72x72" href="{% static "img/favicon.png" %}">
+    <link rel="apple-touch-icon" sizes="114x114" href="{% static "img/favicon.png" %}">
+
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-78976544-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+</head>
+<body>
+    <div class="outer">
+    <div class="middle">
+    <div class="inner">
+        {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+        <form action="{% url 'catalyze.index' %}" method="post">
+        <span class="tweet-statement">My catalyst of choice is</span>
+        {% csrf_token %}
+            <select name="catalyst">   
+            {% for catalyst in CHANGE_CATALYSTS %}
+                <option value="{{ catalyst }}">{{ catalyst }}</option>
+            {% endfor %}
+            </select>
+        <span class="tweet-tags"> #techinclusion16 @techinclusion</span>
+        <div class="top-margin">
+            <input type="submit" value="Tweet This" />
+        </div>
+        </form>
+
+    </div>
+    </div>
+    </div>
+</body>
+</html>
