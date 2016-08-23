@@ -36,10 +36,10 @@ DEFAULT_CATALYST = CHANGE_CATALYSTS[0]
 def index(request):
     if request.session.get('twitter_oauth_final', False) or settings.DEBUG:
         if request.POST.get('catalyst', None):
-            twitter = Twython(APP_KEY, APP_SECRET,
-                request.session['twitter_oauth_token'],
-                request.session['twitter_oauth_token_secret'])
             try:
+                twitter = Twython(APP_KEY, APP_SECRET,
+                    request.session['twitter_oauth_token'],
+                    request.session['twitter_oauth_token_secret'])
                 catalyst = request.POST.get('catalyst', DEFAULT_CATALYST)
                 twitter.update_status(status='My change catalyst of choice is %s #techinclusion16 @techinclusion' % catalyst)
                 return redirect('https://twitter.com/hashtag/techinclusion16')
