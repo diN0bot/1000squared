@@ -34,7 +34,7 @@ DEFAULT_CATALYST = CHANGE_CATALYSTS[0]
 
 
 def index(request):
-    if request.session.get('twitter_oauth_final', False) or settings.DEBUG:
+    if request.session.get('twitter_oauth_final', False):# or settings.DEBUG:
         if request.POST.get('catalyst', None):
             try:
                 twitter = Twython(APP_KEY, APP_SECRET,
