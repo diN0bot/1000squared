@@ -40,10 +40,11 @@ def index(request):
                 twitter = Twython(APP_KEY, APP_SECRET,
                     request.session['twitter_oauth_token'],
                     request.session['twitter_oauth_token_secret'])
+
                 catalyst = request.POST.get('catalyst', DEFAULT_CATALYST)
                 twitter.update_status(status='My change catalyst of choice is %s #techinclusion16 @techinclusion' % catalyst)
                 return redirect('https://twitter.com/hashtag/techinclusion16')
-            except TwythonAuthError:
+            except TwythonAuthError, KeyError as e:
                 request.session['twitter_oauth_final'] = False
                 return redirect('catalyze.index')
 
