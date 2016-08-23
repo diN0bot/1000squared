@@ -44,7 +44,7 @@ def index(request):
                 catalyst = request.POST.get('catalyst', DEFAULT_CATALYST)
                 twitter.update_status(status='My change catalyst of choice is %s #techinclusion16 @techinclusion' % catalyst)
                 return redirect('https://twitter.com/hashtag/techinclusion16')
-            except TwythonAuthError, KeyError:
+            except (TwythonAuthError, KeyError) as e:
                 request.session['twitter_oauth_final'] = False
                 return redirect('catalyze.index')
 
