@@ -5,5 +5,5 @@ from catalyze import urls as catalyze_urls
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^catalyze/', include(catalyze_urls))
+    url(r'', include(catalyze_urls))
 ]
