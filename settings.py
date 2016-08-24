@@ -37,6 +37,9 @@ SECRET_KEY = 'vpb0)8kb^+y8#u6+d1w$b-flwwgk4l_=t4d-135fr3%!0w8)&y'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
+APP_KEY = 'IMPORTANT: OVERRIDE IN local_settings.py'
+APP_SECRET = 'IMPORTANT: OVERRIDE IN local_settings.py'
+
 ALLOWED_HOSTS = ['lusrc.com']
 
 

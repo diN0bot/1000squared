@@ -32,14 +32,14 @@
         {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
         <form action="{% url 'catalyze.index' %}" method="post">
-        <span class="tweet-statement">My catalyst of choice is</span>
+        <span class="tweet-statement">{{ TWEET_STATEMENT }}</span>
         {% csrf_token %}
             <select name="catalyst">   
             {% for catalyst in CHANGE_CATALYSTS %}
                 <option value="{{ catalyst }}">{{ catalyst }}</option>
             {% endfor %}
             </select>
-        <span class="tweet-tags"> #techinclusion16 @techinclusion</span>
+        <span class="tweet-tags"> {{ TWEET_TAGS }}</span>
         <div class="top-margin">
             <input type="submit" value="Tweet This" />
         </div>
