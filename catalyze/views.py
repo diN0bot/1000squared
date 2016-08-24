@@ -71,7 +71,7 @@ def index(request):
         ### User is not authenticated. No form for them. Initiate oauth process.
         # TODO: From a UI point of view, maybe we should show the form first, and ask to authenticate after user has invested in a selection?
         twitter = Twython(APP_KEY, APP_SECRET)
-        auth = twitter.get_authentication_tokens(callback_url='http://%s%s' % (request.get_host(), reverse('catalyze.callback')))
+        auth = twitter.get_authentication_tokens(callback_url='http://%s%s/' % (request.get_host(), reverse('catalyze.callback')))
         request.session['twitter_oauth_final'] = False
         # these are intermediate values. after the user authenticates this app and returns to the callback we'll overwrite 
         # with the the final authenticated values and set 'twitter_oauth_final' to True
