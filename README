@@ -6,7 +6,8 @@
     ./manage.py collectstatic
     cp local_settings.py.example local_settings.py
 
-Edit `local_settings.py` to have legit Twitter keys
+Edit `local_settings.py` to have legit Twitter keys.
+Create keys here: https://apps.twitter.com/
 
 # RUN
 
