@@ -1,0 +1,5 @@
+DEBUG = True
+
+# Create Twitter app keys here: https://apps.twitter.com/
+APP_KEY = ''
+APP_SECRET = ''

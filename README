@@ -1,21 +1,15 @@
-# AFTER CLONE
-cp git-hooks/pre-push .git/hooks/pre-push
 
-# BEFORE PUSHING LIVE
-./manage.py dumpdata -o comic_data_dump.json --format=json --indent=4
+# INSTALL
 
-# now covered by pre-push hook
-echo "yes" | ./manage.py collectstatic
+    sudo pip install -r requirements.txt
+    ./manage.py migrate
+    ./manage.py collectstatic
+    cp local_settings.py.example local_settings.py
 
-# AFTER A PULL
-pip install -r requirements.txt # add this to post-receive?
-./manage.py migrate
+Edit `local_settings.py` to have legit Twitter keys
 
-have a look at hooks/post-receive for what happens on production automatically after each deploy
-for sudo use sudo visudo on production to not require password for that command
+# RUN
 
+    ./manage.py runserver
 
-## PRODUCTION DEPLOY NOTES
-www-data:www-data must own directory and db.sqlite3 so that sessions can be written to database
-...but lus must be owner for git post-receive to work
-...so db.sqlite3 is writable by any user on server
+Navigate in browser to http://locahost:8000
