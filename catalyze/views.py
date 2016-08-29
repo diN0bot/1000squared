@@ -3,6 +3,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django.shortcuts import render
 import os
+from PIL import Image, ImageDraw, ImageFont
 from settings import APP_KEY, APP_SECRET, DEV_DEBUG, DEV_OAUTH_TOKEN, DEV_OAUTH_TOKEN_SECRET
 from twython import Twython
 from twython.exceptions import TwythonAuthError
@@ -33,6 +34,8 @@ CHANGE_CATALYSTS = ['inclusion',
 DEFAULT_CATALYST = CHANGE_CATALYSTS[0]
 TWEET_TAGS = 'dev' #TODO: when ready to go live: #techinclusion16 @techinclusion'
 
+# Twitter media upload doesn't accept images larger than 3mb
+TWITTER_IMAGE_SIZE_LIMIT = 3145728
 
 """
  Displays the form and handles posting tweets after the user makes a selection.
@@ -43,7 +46,7 @@ TWEET_TAGS = 'dev' #TODO: when ready to go live: #techinclusion16 @techinclusion
  indicates whether a user is successfully authenticated. This bit dictates 
  flow through the index and callback state machines. Also, We've followed 
  oauth naming and flow conventions from our use of Twython.
-""" 
+"""
 def index(request):
     # TODO: ALLOWED_HOSTS is currently failing on production, so DEBUG=True on prod....
     if request.session.get('twitter_oauth_final', False) or DEV_DEBUG:
@@ -56,30 +59,13 @@ def index(request):
             form = CatalystPicForm(request.POST, request.FILES)
             if form.is_valid():
                 new_catalyst_pic = form.save()
-                # from Pillow import Image
-                # from Pillow import ImageFont
-                # from Pillow import ImageDraw 
-                #img_data = form.cleaned_data['uploaded_image']
-                # img = Image.open(img_data)
-                # draw = ImageDraw.Draw(img)
-                # font = ImageFont.truetype("sans-serif.ttf", 16)
-                # draw.text((x, y),"Sample Text",(r,g,b))
-                # draw.text((0, 0), "Sample Text", (255,255,255), font=font)
-                # img.save("FOO.JPG")
-                # return render(request, 'catalyze/index.html', {'TWEET_STATEMENT': TWEET_STATEMENT,
-                #                                                'CHANGE_CATALYSTS': CHANGE_CATALYSTS,
-                #                                                'TWEET_TAGS': TWEET_TAGS}) 
 
                 ### Tweet user's selection from submitted form
                 try:
-                    statinfo = os.stat(new_catalyst_pic.pic.name)
-                    if statinfo.st_size >= 3145728:
-                        # Twitter media upload doesn't accept images larger than 3mb
-                        ### Show form with error message
-                        return render(request, 'catalyze/index.html', {'TWEET_STATEMENT': TWEET_STATEMENT,
-                                                           'CHANGE_CATALYSTS': CHANGE_CATALYSTS,
-                                                           'TWEET_TAGS': TWEET_TAGS,
-                                                           'pic_too_big': True})
+                    catalyst = request.POST.get('catalyst', DEFAULT_CATALYST)
+                    status = '%s %s %s' % (TWEET_STATEMENT, catalyst, TWEET_TAGS)
+
+                    _process_image(new_catalyst_pic.pic.name, status)
 
                     twitter = Twython(
                         APP_KEY, APP_SECRET,
@@ -88,14 +74,12 @@ def index(request):
                     photo = open(new_catalyst_pic.pic.name, 'rb')
                     response = twitter.upload_media(media=photo)
 
-                    catalyst = request.POST.get('catalyst', DEFAULT_CATALYST)
-                    twitter.update_status(
-                        status='%s %s %s' % (TWEET_STATEMENT, catalyst, TWEET_TAGS),
-                        media_ids=[response['media_id']])
+                    twitter.update_status(status=status, media_ids=[response['media_id']])
                     
                     return redirect('https://twitter.com/hashtag/techinclusion16')
                 except (TwythonAuthError, KeyError) as e:
                     request.session['twitter_oauth_final'] = False
+                    print "TwythonAuthError", e
                     return redirect('catalyze.index')
             else:
                 ### Show form with error message
@@ -108,7 +92,8 @@ def index(request):
             ### Show form
             return render(request, 'catalyze/index.html', {'TWEET_STATEMENT': TWEET_STATEMENT,
                                                            'CHANGE_CATALYSTS': CHANGE_CATALYSTS,
-                                                           'TWEET_TAGS': TWEET_TAGS})
+                                                           'TWEET_TAGS': TWEET_TAGS, 'a': request.session['twitter_oauth_token'],
+                                                           'b': request.session['twitter_oauth_token_secret']})
 
     else:
         ### User is not authenticated. No form for them. Initiate oauth process.
@@ -144,3 +129,27 @@ def callback(request):
     request.session['twitter_oauth_token_secret'] = final_step['oauth_token_secret']
     request.session['twitter_oauth_final'] = True
     return redirect('catalyze.index')
+
+def _process_image(filename, status):
+    img = Image.open(filename)
+
+    # add text to image
+    draw = ImageDraw.Draw(img)
+    #font = ImageFont.truetype("sans-serif.ttf", 16)
+    draw.text((0, 0), status, (255,255,255))#, font=font)
+    img.save(filename)
+
+    # resize if necessary
+    statinfo = os.stat(filename)
+    if statinfo.st_size >= TWITTER_IMAGE_SIZE_LIMIT:
+        (w, h) = img.size
+        quality = 85
+        while statinfo.st_size >= TWITTER_IMAGE_SIZE_LIMIT:
+            img.save(filename, optimize=True, quality=quality)
+            statinfo = os.stat(filename)
+            quality = quality - 5
+            if quality < 70:
+                quality = 70
+                w = int(w * .90)
+                h = int(h * .90)
+                img = img.resize((w, h), Image.ANTIALIAS)
