@@ -1,6 +1,7 @@
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django.shortcuts import render
+from catalyze.models import CatalystPic, CatalystPicForm
 from settings import APP_KEY, APP_SECRET
 from twython import Twython
 from twython.exceptions import TwythonAuthError
@@ -45,21 +46,56 @@ TWEET_TAGS = '#techinclusion16 @techinclusion'
 def index(request):
     # TODO: ALLOWED_HOSTS is currently failing on production, so DEBUG=True on prod....
     # Add 'or TRUE' to the following predicate to see the form page...but don't commit it
-    if request.session.get('twitter_oauth_final', False):# or settings.DEBUG: 
+    if request.session.get('twitter_oauth_final', False) or True:# or settings.DEBUG: 
         ### User is authenticated, show/process form
-        if request.POST.get('catalyst', None):
-            ### Tweet user's selection from submitted form
-            try:
-                twitter = Twython(APP_KEY, APP_SECRET,
-                    request.session['twitter_oauth_token'],
-                    request.session['twitter_oauth_token_secret'])
+        if request.method == 'POST':
+            form = CatalystPicForm(request.POST, request.FILES)
+            if form.is_valid():
+                new_catalyst_pic = form.save()
+                print
+                print "FILENAME", new_catalyst_pic.pic.name
+                print
+                # from Pillow import Image
+                # from Pillow import ImageFont
+                # from Pillow import ImageDraw 
+                #img_data = form.cleaned_data['uploaded_image']
+                # img = Image.open(img_data)
+                # draw = ImageDraw.Draw(img)
+                # font = ImageFont.truetype("sans-serif.ttf", 16)
+                # draw.text((x, y),"Sample Text",(r,g,b))
+                # draw.text((0, 0), "Sample Text", (255,255,255), font=font)
+                # img.save("FOO.JPG")
+                # return render(request, 'catalyze/index.html', {'TWEET_STATEMENT': TWEET_STATEMENT,
+                #                                                'CHANGE_CATALYSTS': CHANGE_CATALYSTS,
+                #                                                'TWEET_TAGS': TWEET_TAGS}) 
 
-                catalyst = request.POST.get('catalyst', DEFAULT_CATALYST)
-                twitter.update_status(status='%s %s %s' % (TWEET_STATEMENT, catalyst, TWEET_TAGS))
-                return redirect('https://twitter.com/hashtag/techinclusion16')
-            except (TwythonAuthError, KeyError) as e:
-                request.session['twitter_oauth_final'] = False
-                return redirect('catalyze.index')
+                ### Tweet user's selection from submitted form
+                try:
+                    twitter = Twython(
+                        APP_KEY, APP_SECRET,
+                        '2500517942-bYnoax2BLBWaAbI8CPVGMVzkMtQsAkTAp6kYzop',
+                        'is8oId1K5UO27u2bHXuMzEhSYpmXPvA5y4jQjVTqhfWLV')
+                        #request.session['twitter_oauth_token'],
+                        #request.session['twitter_oauth_token_secret'])
+
+                    photo = open(new_catalyst_pic.pic.name, 'rb')
+                    response = twitter.upload_media(media=photo)
+
+                    catalyst = request.POST.get('catalyst', DEFAULT_CATALYST)
+                    twitter.update_status(
+                        status='%s %s %s' % (TWEET_STATEMENT, catalyst, TWEET_TAGS),
+                        media_ids=[response['media_id']])
+                    
+                    return redirect('https://twitter.com/hashtag/techinclusion16')
+                except (TwythonAuthError, KeyError) as e:
+                    request.session['twitter_oauth_final'] = False
+                    return redirect('catalyze.index')
+            else:
+                ### Show form with error message
+                return render(request, 'catalyze/index.html', {'TWEET_STATEMENT': TWEET_STATEMENT,
+                                                           'CHANGE_CATALYSTS': CHANGE_CATALYSTS,
+                                                           'TWEET_TAGS': TWEET_TAGS,
+                                                           'errors': form.errors})
 
         else:
             ### Show form
