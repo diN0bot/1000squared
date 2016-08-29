@@ -71,11 +71,19 @@ def index(request):
 
                 ### Tweet user's selection from submitted form
                 try:
+                    statinfo = os.stat(new_catalyst_pic.pic.name)
+                    if statinfo.st_size >= 3145728:
+                        # Twitter media upload doesn't accept images larger than 3mb
+                        ### Show form with error message
+                        return render(request, 'catalyze/index.html', {'TWEET_STATEMENT': TWEET_STATEMENT,
+                                                           'CHANGE_CATALYSTS': CHANGE_CATALYSTS,
+                                                           'TWEET_TAGS': TWEET_TAGS,
+                                                           'errors': {'pic': 'Image must be less than 3MB'}})
+
                     twitter = Twython(
                         APP_KEY, APP_SECRET,
                         request.session['twitter_oauth_token'],
                         request.session['twitter_oauth_token_secret'])
-
                     photo = open(new_catalyst_pic.pic.name, 'rb')
                     response = twitter.upload_media(media=photo)
 
