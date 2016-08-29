@@ -26,7 +26,6 @@
     </script>
 </head>
 <body>
-    <h1>{{a}}--{{b}}</h1>
     <div class="outer">
     <div class="middle">
     <div class="inner">
@@ -54,5 +53,6 @@
     </div>
     </div>
     </div>
+    {% if DEV_DEBUG %}{{a}}--{{b}}{% endif %}
 </body>
 </html>

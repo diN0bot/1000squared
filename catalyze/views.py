@@ -90,10 +90,13 @@ def index(request):
 
         else:
             ### Show form
-            return render(request, 'catalyze/index.html', {'TWEET_STATEMENT': TWEET_STATEMENT,
-                                                           'CHANGE_CATALYSTS': CHANGE_CATALYSTS,
-                                                           'TWEET_TAGS': TWEET_TAGS, 'a': request.session['twitter_oauth_token'],
-                                                           'b': request.session['twitter_oauth_token_secret']})
+            template_data = {'TWEET_STATEMENT': TWEET_STATEMENT,
+                             'CHANGE_CATALYSTS': CHANGE_CATALYSTS,
+                             'TWEET_TAGS': TWEET_TAGS}
+            if DEV_DEBUG:
+                template_data['a'] = request.session['twitter_oauth_token']
+                template_data['b'] = request.session['twitter_oauth_token_secret']
+            return render(request, 'catalyze/index.html', template_data)
 
     else:
         ### User is not authenticated. No form for them. Initiate oauth process.
