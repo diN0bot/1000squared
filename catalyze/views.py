@@ -1,7 +1,8 @@
+from catalyze.models import CatalystPic, CatalystPicForm
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django.shortcuts import render
-from catalyze.models import CatalystPic, CatalystPicForm
+import os
 from settings import APP_KEY, APP_SECRET, DEV_DEBUG, DEV_OAUTH_TOKEN, DEV_OAUTH_TOKEN_SECRET
 from twython import Twython
 from twython.exceptions import TwythonAuthError
