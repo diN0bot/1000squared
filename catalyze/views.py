@@ -137,6 +137,21 @@ def callback(request):
 
 def _process_image(filename, text):
     img = Image.open(filename)
+    quality = 85
+
+    # resize if necessary
+    statinfo = os.stat(filename)
+    if statinfo.st_size >= TWITTER_IMAGE_SIZE_LIMIT:
+        (w, h) = img.size
+        while statinfo.st_size >= TWITTER_IMAGE_SIZE_LIMIT:
+            img.save(filename, optimize=True, quality=quality)
+            statinfo = os.stat(filename)
+            quality = quality - 5
+            if quality < 70:
+                quality = 70
+                w = int(w * .90)
+                h = int(h * .90)
+                img = img.resize((w, h), Image.ANTIALIAS)
 
     # add text to image
     draw = ImageDraw.Draw(img)
@@ -157,19 +172,4 @@ def _process_image(filename, text):
         # text
         draw.text((x, y), line, color, font=font)
         y = y + 60
-    img.save(filename)
-
-    # resize if necessary
-    statinfo = os.stat(filename)
-    if statinfo.st_size >= TWITTER_IMAGE_SIZE_LIMIT:
-        (w, h) = img.size
-        quality = 85
-        while statinfo.st_size >= TWITTER_IMAGE_SIZE_LIMIT:
-            img.save(filename, optimize=True, quality=quality)
-            statinfo = os.stat(filename)
-            quality = quality - 5
-            if quality < 70:
-                quality = 70
-                w = int(w * .90)
-                h = int(h * .90)
-                img = img.resize((w, h), Image.ANTIALIAS)
+    img.save(filename, optimize=True, quality=quality)
