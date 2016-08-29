@@ -33,7 +33,7 @@ CHANGE_CATALYSTS = ['inclusion',
                     'valuing diversity with money and action']
 
 DEFAULT_CATALYST = CHANGE_CATALYSTS[0]
-TWEET_TAGS = '#techinclusion16 @techinclusion'
+TWEET_TAGS = '#techinclusion16 @techinclusionco'
 
 # Twitter media upload doesn't accept images larger than 3mb
 TWITTER_IMAGE_SIZE_LIMIT = 3145728
