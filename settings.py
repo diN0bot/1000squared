@@ -36,7 +36,11 @@ SECRET_KEY = 'vpb0)8kb^+y8#u6+d1w$b-flwwgk4l_=t4d-135fr3%!0w8)&y'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
+
+# Use local_settings.py to override
 DEV_DEBUG = False
+DEV_OAUTH_TOKEN = ''
+DEV_OAUTH_TOKEN_SECRET = ''
 
 APP_KEY = 'IMPORTANT: OVERRIDE IN local_settings.py'
 APP_SECRET = 'IMPORTANT: OVERRIDE IN local_settings.py'
