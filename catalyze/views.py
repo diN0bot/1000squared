@@ -4,7 +4,8 @@ from django.shortcuts import redirect
 from django.shortcuts import render
 import os
 from PIL import Image, ImageDraw, ImageFont
-from settings import APP_KEY, APP_SECRET, DEV_DEBUG, DEV_OAUTH_TOKEN, DEV_OAUTH_TOKEN_SECRET
+import settings
+import textwrap
 from twython import Twython
 from twython.exceptions import TwythonAuthError
 
@@ -49,11 +50,11 @@ TWITTER_IMAGE_SIZE_LIMIT = 3145728
 """
 def index(request):
     # TODO: ALLOWED_HOSTS is currently failing on production, so DEBUG=True on prod....
-    if request.session.get('twitter_oauth_final', False) or DEV_DEBUG:
+    if request.session.get('twitter_oauth_final', False) or settings.DEV_DEBUG:
         ### User is authenticated, show/process form
-        if DEV_DEBUG:
-            request.session['twitter_oauth_token'] = DEV_OAUTH_TOKEN
-            request.session['twitter_oauth_token_secret'] = DEV_OAUTH_TOKEN_SECRET
+        if settings.DEV_DEBUG:
+            request.session['twitter_oauth_token'] = settings.DEV_OAUTH_TOKEN
+            request.session['twitter_oauth_token_secret'] = settings.DEV_OAUTH_TOKEN_SECRET
 
         if request.method == 'POST':
             form = CatalystPicForm(request.POST, request.FILES)
@@ -68,7 +69,7 @@ def index(request):
                     _process_image(new_catalyst_pic.pic.name, status)
 
                     twitter = Twython(
-                        APP_KEY, APP_SECRET,
+                        settings.APP_KEY, settings.APP_SECRET,
                         request.session['twitter_oauth_token'],
                         request.session['twitter_oauth_token_secret'])
                     photo = open(new_catalyst_pic.pic.name, 'rb')
@@ -93,7 +94,8 @@ def index(request):
             template_data = {'TWEET_STATEMENT': TWEET_STATEMENT,
                              'CHANGE_CATALYSTS': CHANGE_CATALYSTS,
                              'TWEET_TAGS': TWEET_TAGS}
-            if DEV_DEBUG:
+            if settings.DEV_DEBUG:
+                template_data['DEV_DEBUG'] = True
                 template_data['a'] = request.session['twitter_oauth_token']
                 template_data['b'] = request.session['twitter_oauth_token_secret']
             return render(request, 'catalyze/index.html', template_data)
@@ -101,7 +103,7 @@ def index(request):
     else:
         ### User is not authenticated. No form for them. Initiate oauth process.
         # TODO: From a UI point of view, maybe we should show the form first, and ask to authenticate after user has invested in a selection?
-        twitter = Twython(APP_KEY, APP_SECRET)
+        twitter = Twython(settings.APP_KEY, settings.APP_SECRET)
         auth = twitter.get_authentication_tokens(callback_url='http://%s%s/' % (request.get_host(), reverse('catalyze.callback')))
         request.session['twitter_oauth_final'] = False
         # these are intermediate values. after the user authenticates this app and returns to the callback we'll overwrite 
@@ -119,7 +121,7 @@ def callback(request):
 
     twitter_oauth_token = request.session.get('twitter_oauth_token', None)
     twitter_oauth_token_secret = request.session.get('twitter_oauth_token_secret', None)
-    twitter = Twython(APP_KEY, APP_SECRET, twitter_oauth_token, twitter_oauth_token_secret)
+    twitter = Twython(settings.APP_KEY, settings.APP_SECRET, twitter_oauth_token, twitter_oauth_token_secret)
 
     try:
         final_step = twitter.get_authorized_tokens(oauth_verifier)
@@ -133,13 +135,28 @@ def callback(request):
     request.session['twitter_oauth_final'] = True
     return redirect('catalyze.index')
 
-def _process_image(filename, status):
+def _process_image(filename, text):
     img = Image.open(filename)
 
     # add text to image
     draw = ImageDraw.Draw(img)
-    #font = ImageFont.truetype("sans-serif.ttf", 16)
-    draw.text((0, 0), status, (255,255,255))#, font=font)
+    font_path = os.path.join(settings.BASE_DIR, 'elegantly_simple.ttf')
+    #font_path = os.path.join(settings.BASE_DIR, 'inky.ttf')
+    font = ImageFont.truetype(font_path, 60)
+    color = (256, 256, 256) #White
+    outline_color = '#000000' #Black
+    x = 0
+    y = 0
+    d = 2
+    for line in textwrap.wrap(text, width=40):
+        # border around text
+        draw.text((x-d, y-d), line, font=font, fill=outline_color)
+        draw.text((x+d, y-d), line, font=font, fill=outline_color)
+        draw.text((x-d, y+d), line, font=font, fill=outline_color)
+        draw.text((x+d, y+d), line, font=font, fill=outline_color)
+        # text
+        draw.text((x, y), line, color, font=font)
+        y = y + 60
     img.save(filename)
 
     # resize if necessary
