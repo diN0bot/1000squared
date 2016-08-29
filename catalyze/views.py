@@ -79,7 +79,7 @@ def index(request):
                         return render(request, 'catalyze/index.html', {'TWEET_STATEMENT': TWEET_STATEMENT,
                                                            'CHANGE_CATALYSTS': CHANGE_CATALYSTS,
                                                            'TWEET_TAGS': TWEET_TAGS,
-                                                           'errors': {'pic': 'Image must be less than 3MB'}})
+                                                           'pic_too_big': True})
 
                     twitter = Twython(
                         APP_KEY, APP_SECRET,

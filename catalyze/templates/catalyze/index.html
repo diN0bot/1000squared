@@ -43,6 +43,7 @@
             <div class="image-upload">
                 <input type="file" name="pic">
                 <div class="error">{% if errors.pic %}You must upload an image{% endif %}</div>
+                <div class="error">{% if pic_too_big %}Image must be smaller than 3 MB{% endif %}</div>
             </div>
 
             <div class="top-margin">
