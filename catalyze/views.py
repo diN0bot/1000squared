@@ -2,7 +2,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django.shortcuts import render
 from catalyze.models import CatalystPic, CatalystPicForm
-from settings import APP_KEY, APP_SECRET
+from settings import APP_KEY, APP_SECRET, DEV_DEBUG, DEV_OAUTH_TOKEN, DEV_OAUTH_TOKEN_SECRET
 from twython import Twython
 from twython.exceptions import TwythonAuthError
 
@@ -45,8 +45,12 @@ TWEET_TAGS = '#techinclusion16 @techinclusion'
 """ 
 def index(request):
     # TODO: ALLOWED_HOSTS is currently failing on production, so DEBUG=True on prod....
-    if request.session.get('twitter_oauth_final', False) or settings.DEV_DEBUG:
+    if request.session.get('twitter_oauth_final', False) or DEV_DEBUG:
         ### User is authenticated, show/process form
+        if DEV_DEBUG:
+            request.session['twitter_oauth_token'] = DEV_OAUTH_TOKEN
+            request.session['twitter_oauth_token_secret'] = DEV_OAUTH_TOKEN_SECRET
+
         if request.method == 'POST':
             form = CatalystPicForm(request.POST, request.FILES)
             if form.is_valid():

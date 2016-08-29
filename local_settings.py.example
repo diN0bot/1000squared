@@ -1,5 +1,10 @@
 DEBUG = True
+DEV_DEBUG = True
 
 # Create Twitter app keys here: https://apps.twitter.com/
 APP_KEY = ''
 APP_SECRET = ''
+
+# Oauth tokens to use in development because oauth callbacks only work in production
+DEV_OAUTH_TOKEN = ''
+DEV_OAUTH_TOKEN_SECRET = ''
