@@ -137,12 +137,12 @@ def callback(request):
 
 def _process_image(filename, text):
     img = Image.open(filename)
+    (w, h) = img.size
     quality = 85
 
     # resize if necessary
     statinfo = os.stat(filename)
     if statinfo.st_size >= TWITTER_IMAGE_SIZE_LIMIT:
-        (w, h) = img.size
         while statinfo.st_size >= TWITTER_IMAGE_SIZE_LIMIT:
             img.save(filename, optimize=True, quality=quality)
             statinfo = os.stat(filename)
@@ -156,14 +156,16 @@ def _process_image(filename, text):
     # add text to image
     draw = ImageDraw.Draw(img)
     font_path = os.path.join(settings.BASE_DIR, 'elegantly_simple.ttf')
-    #font_path = os.path.join(settings.BASE_DIR, 'inky.ttf')
-    font = ImageFont.truetype(font_path, 60)
+    font_size = int(w / 22.0)
+    text_wrap = 40 #should be constant if font size scales with width
+    yd = int(font_size * 1.2)
+    font = ImageFont.truetype(font_path, font_size)
     color = (256, 256, 256) #White
     outline_color = '#000000' #Black
     x = 0
     y = 0
     d = 2
-    for line in textwrap.wrap(text, width=40):
+    for line in textwrap.wrap(text, width=text_wrap):
         # border around text
         draw.text((x-d, y-d), line, font=font, fill=outline_color)
         draw.text((x+d, y-d), line, font=font, fill=outline_color)
@@ -171,5 +173,5 @@ def _process_image(filename, text):
         draw.text((x+d, y+d), line, font=font, fill=outline_color)
         # text
         draw.text((x, y), line, color, font=font)
-        y = y + 60
+        y = y + yd
     img.save(filename, optimize=True, quality=quality)
