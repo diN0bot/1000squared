@@ -30,7 +30,7 @@ CHANGE_CATALYSTS = ['inclusion',
                     'valuing diversity with money and action']
 
 DEFAULT_CATALYST = CHANGE_CATALYSTS[0]
-TWEET_TAGS = '#techinclusion16 @techinclusion'
+TWEET_TAGS = 'dev' #TODO: when ready to go live: #techinclusion16 @techinclusion'
 
 
 """
