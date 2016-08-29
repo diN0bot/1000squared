@@ -52,9 +52,6 @@ def index(request):
             form = CatalystPicForm(request.POST, request.FILES)
             if form.is_valid():
                 new_catalyst_pic = form.save()
-                print
-                print "FILENAME", new_catalyst_pic.pic.name
-                print
                 # from Pillow import Image
                 # from Pillow import ImageFont
                 # from Pillow import ImageDraw 
@@ -73,10 +70,8 @@ def index(request):
                 try:
                     twitter = Twython(
                         APP_KEY, APP_SECRET,
-                        '2500517942-bYnoax2BLBWaAbI8CPVGMVzkMtQsAkTAp6kYzop',
-                        'is8oId1K5UO27u2bHXuMzEhSYpmXPvA5y4jQjVTqhfWLV')
-                        #request.session['twitter_oauth_token'],
-                        #request.session['twitter_oauth_token_secret'])
+                        request.session['twitter_oauth_token'],
+                        request.session['twitter_oauth_token_secret'])
 
                     photo = open(new_catalyst_pic.pic.name, 'rb')
                     response = twitter.upload_media(media=photo)
