@@ -45,8 +45,7 @@ TWEET_TAGS = '#techinclusion16 @techinclusion'
 """ 
 def index(request):
     # TODO: ALLOWED_HOSTS is currently failing on production, so DEBUG=True on prod....
-    # Add 'or TRUE' to the following predicate to see the form page...but don't commit it
-    if request.session.get('twitter_oauth_final', False) or True:# or settings.DEBUG: 
+    if request.session.get('twitter_oauth_final', False) or settings.DEV_DEBUG:
         ### User is authenticated, show/process form
         if request.method == 'POST':
             form = CatalystPicForm(request.POST, request.FILES)
